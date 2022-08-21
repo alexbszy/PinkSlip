@@ -42,7 +42,7 @@ function setIndexFromParam() {
 }
 
 $(() => { 
-    socket = new WebSocket("ws://127.0.0.1:3000/");
+    socket = new WebSocket("ws://18.116.82.31:3000/");
     // setUrlParam();
     setIndexFromParam();
     setUrlParam();
