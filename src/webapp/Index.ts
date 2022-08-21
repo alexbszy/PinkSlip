@@ -5,7 +5,7 @@ import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
 
 async function bootstrap() {
-  const port = process.env.PORT || 8082;
+  const port = process.env.PORT || 443;
   const logger = winston.createLogger({
     transports: [
       new winston.transports.Console(),
@@ -19,7 +19,6 @@ async function bootstrap() {
   const app = expressWs(express()).app;
   app.use(express.static(__dirname + "/../src/webapp/web/static"));
   app.use(express.static(__dirname + "/../src/webapp/web/static/template", {extensions: ['html']}));
-
   app.ws('/', (ws:any, req:any) => {
     const timeSinceLastUpdateInMinutes: number = (Date.now() - cacheFileService.getLastUpdateTime()) / 6e4;
     logger.info(`Time since last update in minutes: ${timeSinceLastUpdateInMinutes}`)
