@@ -1,5 +1,8 @@
 import express from "express";
 import expressWs from "express-ws";
+import fs from "fs";
+import https from "https";
+import path from "path";
 import winston from "winston";
 import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
@@ -16,7 +19,14 @@ async function bootstrap() {
   const oddsApiService: OddsApiService = new OddsApiService(logger);
   const cacheFileService: CacheFileService = new CacheFileService(logger);
 
-  const app = expressWs(express()).app;
+  const httpsOptions = {
+    cert: fs.readFileSync(path.join(__dirname, '../ssl', 'server.crt')),
+    key: fs.readFileSync(path.join(__dirname, '../ssl', 'server.key')),
+  }
+
+  const expressApp = express();
+  const app = expressWs(expressApp).app;
+
   app.use(express.static(__dirname + "/../src/webapp/web/static"));
   app.use(express.static(__dirname + "/../src/webapp/web/static/template", {extensions: ['html']}));
   app.ws('/', (ws:any, req:any) => {
@@ -39,7 +49,9 @@ async function bootstrap() {
     });
   });
 
-  app.listen(port, () => {
+  const httpsServer = https.createServer(httpsOptions, expressApp);
+
+  httpsServer.listen(port, () => {
       logger.info( `Server started at http://localhost:${port}` );
   });
 }
