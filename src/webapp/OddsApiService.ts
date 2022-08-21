@@ -1,5 +1,5 @@
 import winston from "winston";
-import {Sport} from "./enums/sports"
+import { CURRENT_BET_LIST } from "./CurrentList";
 
 export class OddsApiService {
     logger: winston.Logger;
@@ -11,16 +11,16 @@ export class OddsApiService {
 
     async getAllScores(daysBack: number) : Promise<any> {
         return Promise.all([
-            [],
-            this.getScores(Sport.American_Football_NCAAF, daysBack),
-            this.getScores(Sport.American_Football_NFL, daysBack),
-            this.getScores(Sport.Baseball_MLB, daysBack),
-            this.getScores(Sport.Basketball_NBA, daysBack),
-            this.getScores(Sport.Basketball_NCAAB, daysBack),
-            this.getScores(Sport.Ice_Hockey_NHL, daysBack),
-            this.getScores(Sport.Soccer_EPL, daysBack),
-            this.getScores(Sport.Soccer_Germany_Bundesliga, daysBack),
-            this.getScores(Sport.Soccer_Spain_La_Liga, daysBack),
+            this.getScores(CURRENT_BET_LIST[0], daysBack),
+            this.getScores(CURRENT_BET_LIST[1], daysBack),
+            this.getScores(CURRENT_BET_LIST[2], daysBack),
+            this.getScores(CURRENT_BET_LIST[3], daysBack),
+            this.getScores(CURRENT_BET_LIST[4], daysBack),
+            this.getScores(CURRENT_BET_LIST[5], daysBack),
+            this.getScores(CURRENT_BET_LIST[6], daysBack),
+            this.getScores(CURRENT_BET_LIST[7], daysBack),
+            this.getScores(CURRENT_BET_LIST[8], daysBack),
+            this.getScores(CURRENT_BET_LIST[9], daysBack)
         ]);
     }
 

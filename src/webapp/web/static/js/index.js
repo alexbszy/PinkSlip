@@ -5,8 +5,8 @@ const UP_ARROW = "&#813";
 const DOWN_ARROW = "&#748";
 let pinkSlipState = 1;
 
-const listOfSports = ['Live', 'NCAAF', 'NFL', 'MLB', 'NBA', 'NCAAB', 'NHL', 'EPL', 'Bundesliga', 'La Liga'];
-const listOfSportImages = ['all.png', 'football.png', 'football.png', 'baseball.png', 'basketball.png', 'basketball.png', 'hockey.png', 'soccer.png', 'soccer.png', 'soccer.png'];
+const listOfSports = ['NFL', 'MLB', 'NBA', 'NCAAB', 'NHL', 'EPL', 'Ligue One', 'Bundesliga', 'Series A', 'La Liga'];
+const listOfSportImages = ['football.png', 'baseball.png', 'basketball.png', 'basketball.png', 'hockey.png', 'soccer.png', 'soccer.png', 'soccer.png', 'soccer.png', 'soccer.png'];
 
 function setUpTabs() {
     listOfSports.forEach((sport, index) => {
