@@ -23,8 +23,9 @@ const serverOptions = {
   const cacheFileService: CacheFileService = new CacheFileService(logger);
 
   const app = express();
-  const server = https.createServer(serverOptions, app)
-  expressWs(app, server)
+  // const server = https.createServer(serverOptions, app)
+  // expressWs(app, server)
+  expressWs(app)
 
   app.use(express.static(__dirname + "/../src/webapp/web/static"));
   app.use(express.static(__dirname + "/../src/webapp/web/static/template", {extensions: ['html']}));
@@ -49,8 +50,9 @@ const serverOptions = {
     });
   });
 
-  server.listen(port, () => {
-      logger.info( `Server started at https://localhost:${port}` );
+
+  app.listen(port, () => {
+    logger.info( `Server started at https://localhost:${port}` );
   });
 }
 
