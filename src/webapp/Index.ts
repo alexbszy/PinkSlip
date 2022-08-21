@@ -8,8 +8,13 @@ import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
 
 async function bootstrap() {
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 3000;
+  const logFormat = winston.format.printf(({ level, message, timestamp }) => {
+    return `[${timestamp}][${level}]${message}`;
+  });
+
   const logger = winston.createLogger({
+    format: winston.format.combine(winston.format.timestamp(), logFormat),
     transports: [
       new winston.transports.Console(),
       new winston.transports.File({filename: 'index.log'})
@@ -23,9 +28,8 @@ const serverOptions = {
   const cacheFileService: CacheFileService = new CacheFileService(logger);
 
   const app = express();
-  // const server = https.createServer(serverOptions, app)
-  // expressWs(app, server)
-  expressWs(app)
+  const server = https.createServer(serverOptions, app)
+  expressWs(app, server)
 
   app.use(express.static(__dirname + "/../src/webapp/web/static"));
   app.use(express.static(__dirname + "/../src/webapp/web/static/template", {extensions: ['html']}));
@@ -51,7 +55,7 @@ const serverOptions = {
   });
 
 
-  app.listen(port, () => {
+  server.listen(port, () => {
     logger.info( `Server started at https://localhost:${port}` );
   });
 }
