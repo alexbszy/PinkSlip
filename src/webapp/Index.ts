@@ -8,27 +8,27 @@ import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
 
 async function bootstrap() {
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 3001;
   const logger = winston.createLogger({
     transports: [
       new winston.transports.Console(),
       new winston.transports.File({filename: 'index.log'})
     ]
   });
-
+const serverOptions = {
+  cert: fs.readFileSync(path.join(__dirname, '../ssl', 'server.crt')),
+  key: fs.readFileSync(path.join(__dirname, '../ssl', 'server.key'))
+}
   const oddsApiService: OddsApiService = new OddsApiService(logger);
   const cacheFileService: CacheFileService = new CacheFileService(logger);
 
-  const httpsOptions = {
-    cert: fs.readFileSync(path.join(__dirname, '../ssl', 'server.crt')),
-    key: fs.readFileSync(path.join(__dirname, '../ssl', 'server.key')),
-  }
-
-  const expressApp = express();
-  const app = expressWs(expressApp).app;
+  const app = express();
+  const server = https.createServer(serverOptions, app)
+  expressWs(app, server)
 
   app.use(express.static(__dirname + "/../src/webapp/web/static"));
   app.use(express.static(__dirname + "/../src/webapp/web/static/template", {extensions: ['html']}));
+
   app.ws('/', (ws:any, req:any) => {
     const timeSinceLastUpdateInMinutes: number = (Date.now() - cacheFileService.getLastUpdateTime()) / 6e4;
     logger.info(`Time since last update in minutes: ${timeSinceLastUpdateInMinutes}`)
@@ -49,10 +49,8 @@ async function bootstrap() {
     });
   });
 
-  const httpsServer = https.createServer(httpsOptions, expressApp);
-
-  httpsServer.listen(port, () => {
-      logger.info( `Server started at http://localhost:${port}` );
+  server.listen(port, () => {
+      logger.info( `Server started at https://localhost:${port}` );
   });
 }
 
