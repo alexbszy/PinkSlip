@@ -5,7 +5,7 @@ import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
 
 async function bootstrap() {
-  const port = process.env.PORT || 443;
+  const port = process.env.PORT || 3000;
   const logger = winston.createLogger({
     transports: [
       new winston.transports.Console(),
