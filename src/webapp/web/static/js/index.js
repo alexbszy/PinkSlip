@@ -15,23 +15,40 @@ function setUpTabs() {
     })
 }
 
+
 function requestCollection() { 
     socket.send("all");
     $('button').prop("disabled", true);
 }
 
 $(() => { 
-    socket = new WebSocket("ws://18.116.82.31:3000/");
+    socket = new WebSocket("wss://ec2-18-116-82-31.us-east-2.compute.amazonaws.com:3000/");
     // setUrlParam();
     setIndexFromParam();
     setUrlParam();
-    $('body').append('<h1>PinkSlip.io</h1>');
+    $('body').append('<div class="topRow"><h1 id="mainTitle">PinkSlip.io</h1><button id="connect" onclick="connectWallet()">Connect Wallet</button></div>');
     $('body').append('<div class="headers"></div>');
     setUpTabs();
     createPinkSlip();
     socket.onmessage = function(event){
-        console.log(event);
-        betData = JSON.parse(event.data)
-        displayGames();
+        handleMessage(JSON.parse(event.data));
+
      }
 });
+
+function handleMessage(event) {
+    console.log(event);
+    if (event.type === "scores") {
+        betData = event.data;
+        displayGames();
+    }
+    if (event.type === "walletOpenOrders") {
+        setOpenOrders(event.data);
+    } 
+    if (event.type === "addOrder") {
+        addOrderSuccess(event.data);
+    } 
+    if (event.type === "removeOrder") {
+        removeOrderSuccess(event.data.orderId);
+    } 
+}

@@ -4,6 +4,7 @@ import fs from "fs";
 import https from "https";
 import path from "path";
 import winston from "winston";
+import {DatabaseFileService} from "./DatabaseFileService"
 import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
 
@@ -24,11 +25,12 @@ const serverOptions = {
   cert: fs.readFileSync(path.join(__dirname, '../ssl', 'server.crt')),
   key: fs.readFileSync(path.join(__dirname, '../ssl', 'server.key'))
 }
+  const databaseFileService: DatabaseFileService = new DatabaseFileService(logger);
   const oddsApiService: OddsApiService = new OddsApiService(logger);
   const cacheFileService: CacheFileService = new CacheFileService(logger);
 
   const app = express();
-  const server = https.createServer(serverOptions, app)
+  const server = https.createServer(serverOptions, app);
   expressWs(app, server)
 
   app.use(express.static(__dirname + "/../src/webapp/web/static"));
@@ -45,11 +47,39 @@ const serverOptions = {
       });
     }
     logger.info("Connected")
-    ws.send(JSON.stringify(cacheFileService.getAllScores()));
+
+    const toSendScores = {
+      "type": "scores",
+      "data": cacheFileService.getAllScores()
+    };
+
+    ws.send(JSON.stringify(toSendScores));
     ws.on('message', (msg:any) => {
+      const msgJson = JSON.parse(msg);
       logger.info(`on message ${msg}`);
-      if (msg === "request") {
-        ws.send("sending something soon");
+      if (msgJson.type === "walletConnected") {
+        logger.info("wallet Connected - adding user to db");
+        const toSendOpenOrdersForWallet = {
+          "type": "walletOpenOrders",
+          "data": databaseFileService.getData(msgJson.walletAddress)
+        };
+        ws.send(JSON.stringify(toSendOpenOrdersForWallet));
+      }
+      if (msgJson.type === "removeOrder") {
+        databaseFileService.removeOrder(msgJson.data);
+        const toSendRemoveOrder = {
+          "type": "removeOrder",
+          "data": msgJson.data
+        };
+        ws.send(JSON.stringify(toSendRemoveOrder));
+      }
+      if (msgJson.type === "addOrder") {
+        databaseFileService.addOrder(msgJson.data);
+        const toSendAddOrder = {
+          "type": "addOrder",
+          "data": msgJson.data
+        };
+        ws.send(JSON.stringify(toSendAddOrder));
       }
     });
   });

@@ -18,7 +18,7 @@ export class CacheFileService {
         assert(scores.length === 10);
         const fs = require('fs');
         CURRENT_BET_LIST.forEach((sport: string, index: number) => {
-            fs.writeFileSync(__dirname + `/../cache/${sport}.json`, JSON.stringify(scores[index]));
+            fs.writeFileSync(__dirname + `/../cache/${sport}.json`, JSON.stringify(scores[index], null, 4));
         });
         this._updateLastUpdated();
     }
@@ -49,7 +49,6 @@ export class CacheFileService {
             }
             else {
                 this.logger.error(String(error));
-                throw new Error(error);
             }
         }
     }
@@ -73,7 +72,6 @@ export class CacheFileService {
             }
             else {
                 this.logger.error(String(error));
-                throw new Error(error);
             }
         }
     }

@@ -1,9 +1,12 @@
-const UP_ARROW = "&#813";
-const DOWN_ARROW = "&#748";
+const DOWN_ARROW = "&#813";
+const UP_ARROW = "&#748";
 let currentIndex = 0;
 
 const listOfSports = ['NFL', 'MLB', 'NBA', 'NCAAB', 'NHL', 'EPL', 'Ligue One', 'Bundesliga', 'Series A', 'La Liga'];
 const listOfSportImages = ['football.png', 'baseball.png', 'basketball.png', 'basketball.png', 'hockey.png', 'soccer.png', 'soccer.png', 'soccer.png', 'soccer.png', 'soccer.png'];
+let openBets = [];
+const matchNameToMatchId = new Map();
+const matchIdToMatchName = new Map();
 
 function getFormattedDate(date) {
     let year = date.getFullYear();

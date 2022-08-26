@@ -6,6 +6,7 @@ html {
 body {
     background-color: #232A33;
     margin: 0;
+    margin-top: 5rem;
     font-family: Roboto, Oxygen-Sans, Ubuntu, Cantarell;
     font-weight: 100;
     color: white;
@@ -42,15 +43,49 @@ li {
     margin: 0;
   }
   
-  /* li:hover { */
-          /* border-radius: 1rem; */
-    /* border-style:dashed; */
-    /* border-color: white; */
-    /* border-width: 0.06375rem;  */
-    /* border-left: pink; */
-    /* border-right: pink; */
+.topRow {
+    width: 100%;
+    height: 4rem;
+    position: fixed;
+    top: 0rem;
+    left: 0rem;
+    /* display: grid;
+    grid-template-columns: 50% 50%; */
+    background: #232A33;
+    border-bottom: .125rem solid #1A212A;
+    z-index: 4;
+}
+#mainTitle {
+    width: 50rem;
+    position: fixed;
+    z-index: 4;
+    top: 0rem;
+    left: 50%;
+    transform: translateX(-120%);
+    text-align: center;
+}
 
-  /* } */
+#connect {
+    width: 10rem !important;
+    height: 3rem;
+    margin: .5rem 1rem 0rem auto;
+    border-radius: 1rem;
+    font-size: 110%; 
+    position: fixed;
+    z-index: 4;
+    top: 0rem;
+    right: 0rem;
+    border: .15rem solid #1A212A;
+}
+
+
+#mainTitle {
+    width: 5rem;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+
+}
 
 .headers {
     margin: .24rem 24rem 1rem 24rem;

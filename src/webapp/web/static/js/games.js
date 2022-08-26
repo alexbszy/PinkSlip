@@ -1,4 +1,5 @@
 let betData;
+let CURRENT_TIME = new Date().valueOf();
 
 function displayGames() {
     clearOutAllLists();
@@ -11,6 +12,7 @@ function displayGames() {
         createEmptyList("upcoming_list", "");
    } else {
     currentData.forEach((bet) => {
+
         let dataDto = {
             "id": bet.id,
             "away_team_name": bet.away_team,
@@ -20,6 +22,11 @@ function displayGames() {
             "status": bet.commence_time
         }
 
+        const matchName = formatMatch(dataDto.away_team_name, 
+            dataDto.home_team_name, dataDto.status);
+        matchNameToMatchId.set(matchName, dataDto.id);
+        matchIdToMatchName.set(dataDto.id, matchName);
+        
         if (bet.scores) {
             bet.scores.forEach((score) => {
                 if (score.name === dataDto["away_team_name"]) {
@@ -34,7 +41,7 @@ function displayGames() {
         createList("completed_list", "Completed Games");
 
         const commenceTime = Date.parse(dataDto["status"]);
-        const hasGameCommenced = commenceTime <= new Date().valueOf();
+        const hasGameCommenced = commenceTime <= CURRENT_TIME;
         dataDto["status"] = getFormattedDate(new Date(commenceTime));
         
         if (hasGameCommenced && !bet.completed) {
@@ -121,23 +128,29 @@ function appendToList(dataDto, listName) {
 }
 
 function dropDownOnId(id) {
-    if ($(`#${id.id}`)[0].lastChild.className === "testt") {
+    console.log(id.id);
+    if ($(`#${id.id}`)[0].lastChild.className === "openBetBar") {
         if ($(`#${id.id}`)[0].lastChild.getAttribute("mode") === "up") {
-            $(`#${id.id}`).find(".testt").slideDown("fast");
-            $(`#${id.id}`).find(".testt")[0].setAttribute("mode", "down");
+            $(`#${id.id}`).find(".openBetBar").slideDown("fast");
+            $(`#${id.id}`).find(".openBetBar")[0].setAttribute("mode", "down");
             $(`#${id.id}`).find(".four")[0].innerHTML=DOWN_ARROW
             $(`#${id.id}`).find(".four").css('color', 'grey');
         } else {
-            $(`#${id.id}`).find(".testt").slideUp("fast");
-            $(`#${id.id}`).find(".testt")[0].setAttribute("mode", "up");
+            $(`#${id.id}`).find(".openBetBar").slideUp("fast");
+            $(`#${id.id}`).find(".openBetBar")[0].setAttribute("mode", "up");
             $(`#${id.id}`).find(".four")[0].innerHTML=UP_ARROW
             $(`#${id.id}`).find(".four").css('color', 'white');
         }
     } else {
-        $(`#${id.id}`).append('<div style="display: none;" class="testt">SOMETHING</div>')
-        $(`#${id.id}`).find(".testt").slideDown("fast");
-        $(`#${id.id}`).find(".testt")[0].setAttribute("mode", "down");
+        $(`#${id.id}`).append('<div style="display: none;" class="openBetBar">SOMETHING</div>')
+        $(`#${id.id}`).find(".openBetBar").slideDown("fast");
+        $(`#${id.id}`).find(".openBetBar")[0].setAttribute("mode", "down");
         $(`#${id.id}`).find(".four")[0].innerHTML=DOWN_ARROW
         $(`#${id.id}`).find(".four").css('color', 'grey');
     }
+}
+
+function getOrderHTML() {
+    openBets.forEach()
+    return 
 }

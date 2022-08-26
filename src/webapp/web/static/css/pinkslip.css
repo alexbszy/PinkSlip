@@ -2,8 +2,8 @@
     color: black;
     position: fixed;
     bottom: .5rem;
-    right: 2rem;
-    width: 20rem;
+    right: 1rem;
+    width: 22rem;
     /* height: 10rem; */
     background-color: #ff69b4;
     border-style: solid;
@@ -24,7 +24,6 @@
     display: grid;
     grid-template-columns: 45% 45% 10%;
     -webkit-text-stroke: 1px black; 
-
 }
 .pink-slip-header-1 {
     padding-top: .5rem;
@@ -59,18 +58,25 @@
 }
 
 .pink-slip-body-content-1 {
-    height: 4rem;
+    /* height: 4rem; */
 
-    margin: 2rem;
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+
     display: grid;
-    grid-template-columns: 50% 50% 100%;
+    grid-template-columns: 100%;
+    grid-template-rows: 12% 12% 12% 12% 12% 12% 12% 12%;
 
     text-align: center;
 }
 .pink-slip-body-content-2 {
-    height: 4rem;
+    /* height: 4rem; */
 
-    margin: 2rem;
+
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;    
     text-align: center;
     display: none;
 }
@@ -85,6 +91,109 @@
     color: white;
 }
 
-.pink-slip-body-content-text-2 {
-    
+.pink-slip-row {
+    color: black;
+    font-size: 120%;
+    height: 2rem;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 30% 70%;
+    margin: .5rem .25rem .5rem .25rem;
+}
+
+.pink-slip-row-button {
+    color: black;
+    font-size: 120%;
+    height: 2rem;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 100%;
+    margin: 1rem .25rem 0rem .25rem;
+    border-color: black;
+}
+input, select, textarea, button{
+    background-color: #ff69b4;
+    border-style: solid;
+    border-color: #232A33;
+    border-width: .1rem;
+    border-radius: .1rem;
+}
+
+input:hover, select:hover, textarea:hover{
+    border-style: solid;
+    border-color: white;
+    border-width: .1rem;
+    border-radius: .1rem;
+}
+button:hover{
+    border-style: solid;
+    color: white;
+    border-color: white;
+    border-width: .1rem;
+    border-radius: .1rem;
+}
+
+#con-2 {
+    height: 21rem;
+    overflow-y: scroll;
+}
+
+#con-2 {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+#con-2::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+}
+
+
+#openBets {
+    /* border: .0124rem solid black; */
+
+}
+
+.openBetRow {
+    border: .0248rem solid black;
+    display: grid;
+    grid-template-rows: 100/6% 100/6% 100/6% 100/6% 100/6% 100/6%;
+    text-align: left;
+    margin: 1rem;
+}
+
+.openBetRow:first-of-type {
+    margin-top: 2rem;
+}
+
+.openBetRow2 {
+    margin: .2rem;
+    /* height: 3rem; */
+    border-top: .0124rem dashed black;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    text-align: left;
+}
+
+.openBetRow2:first-child {
+    /* height: 3rem; */
+    border-top: 0rem dashed black;
+}
+.orderId {
+    text-align: left;
+    border: .0124rem solid black;
+}
+
+.placeholder {
+    width: 2.5rem;
+}
+
+#cancel {
+    text-align: center;
+    display: flex;
+    color: blue;
+    width: 5.5rem;
+}
+
+#cancel:hover {
+    color: white;
 }
