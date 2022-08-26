@@ -22,7 +22,7 @@ function requestCollection() {
 }
 
 $(() => { 
-    socket = new WebSocket("wss://ec2-18-116-82-31.us-east-2.compute.amazonaws.com:443/");
+    socket = new WebSocket("wss://pinkslipbet.com:3000/");
     // socket = new WebSocket("wss://127.0.0.1:3000/");
 
     // setUrlParam();
