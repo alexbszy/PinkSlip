@@ -9,7 +9,7 @@ import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
 
 async function bootstrap() {
-  const port = process.env.PORT || 8443;
+  const port = process.env.PORT || 8080;
   const logFormat = winston.format.printf(({ level, message, timestamp }) => {
     return `[${timestamp}][${level}]${message}`;
   });
@@ -29,9 +29,10 @@ const serverOptions = {
   const oddsApiService: OddsApiService = new OddsApiService(logger);
   const cacheFileService: CacheFileService = new CacheFileService(logger);
 
-  const app = express();
-  const server = https.createServer(serverOptions, app);
-  expressWs(app, server)
+  //const app = express();
+  //const server = https.createServer(serverOptions, app);
+  //expressWs(app, server)
+  const app = expressWs(express()).app;
 
   app.use(express.static(__dirname + "/../src/webapp/web/static"));
   app.use(express.static(__dirname + "/../src/webapp/web/static/template", {extensions: ['html']}));
@@ -85,7 +86,7 @@ const serverOptions = {
   });
 
 
-  server.listen(port, () => {
+  app.listen(port, () => {
     logger.info( `Server started at https://localhost:${port}` );
   });
 }
