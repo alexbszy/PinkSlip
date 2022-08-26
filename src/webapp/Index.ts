@@ -9,7 +9,7 @@ import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
 
 async function bootstrap() {
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 8080;
   const logFormat = winston.format.printf(({ level, message, timestamp }) => {
     return `[${timestamp}][${level}]${message}`;
   });
