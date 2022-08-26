@@ -22,8 +22,8 @@ function requestCollection() {
 }
 
 $(() => { 
-    socket = new WebSocket("wss://pinkslipbet.com:8080/");
-    // socket = new WebSocket("wss://127.0.0.1:8080/");
+    socket = new WebSocket("wss://pinkslipbet.com:8443/");
+    // socket = new WebSocket("wss://127.0.0.1:8443/");
 
     // setUrlParam();
     setIndexFromParam();
