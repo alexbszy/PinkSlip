@@ -22,8 +22,8 @@ async function bootstrap() {
     ]
   });
 const serverOptions = {
-  cert: fs.readFileSync(path.join(__dirname, '../ssl', 'server.crt')),
-  key: fs.readFileSync(path.join(__dirname, '../ssl', 'server.key'))
+  cert: fs.readFileSync(path.join(__dirname, '../ssl', 'fullchain.pem')),
+  key: fs.readFileSync(path.join(__dirname, '../ssl', 'privkey.pem'))
 }
   const databaseFileService: DatabaseFileService = new DatabaseFileService(logger);
   const oddsApiService: OddsApiService = new OddsApiService(logger);
