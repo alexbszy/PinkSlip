@@ -6,10 +6,12 @@ export class DatabaseFileService {
     constructor(_logger: winston.Logger) {
         this.logger = _logger;
         this.logger.info("Initializing Database");
-        this._initDatabase();
+        this._initOpenBetsDatabase();
+        this._initFillsDatabase();
+        this.clearExpired();
     }
 
-    getData(walletAddress: string) : any {
+    getOpenBetByWallet(walletAddress: string) : any {
         const fs = require('fs');
         const dbFile = __dirname + `/../db/open_orders.json`;
         const currentOpenOrders = JSON.parse(fs.readFileSync(dbFile));
@@ -19,6 +21,57 @@ export class DatabaseFileService {
         }
         return currentOpenOrders[walletAddress];
     }
+
+
+    addWallet(walletAddress: string) : any {
+        try {
+            const fs = require('fs');
+            const dbFile = __dirname + `/../db/open_orders.json`;
+            const currentOpenOrders = JSON.parse(fs.readFileSync(dbFile));
+            this.logger.info(JSON.stringify(currentOpenOrders));
+
+            if(!currentOpenOrders.hasOwnProperty(walletAddress)){
+                currentOpenOrders[walletAddress] = []
+            }
+            fs.writeFileSync(dbFile, JSON.stringify(currentOpenOrders, null, 4));
+            return true;
+        } catch (error) {
+            this.logger.error(String(error));
+        }
+        return false;
+    }
+
+    getAllOpenBets() : any {
+        const fs = require('fs');
+        const dbFile = __dirname + `/../db/open_orders.json`;
+        const currentOpenOrders = JSON.parse(fs.readFileSync(dbFile));
+        let allOpenOrders = [];
+        const keys = Object.keys(currentOpenOrders);
+        keys.forEach((key) => {
+            allOpenOrders = allOpenOrders.concat((currentOpenOrders[key]));
+        })
+        return allOpenOrders;
+    }
+
+    getAllFills() : any {
+        const fs = require('fs');
+        const dbFile = __dirname + `/../db/fills.json`;
+        const currentFills = JSON.parse(fs.readFileSync(dbFile));
+        return currentFills;
+    }
+
+    clearExpired() : any {
+        const fs = require('fs');
+        const dbFile = __dirname + `/../db/open_orders.json`;
+        const currentOpenOrders = JSON.parse(fs.readFileSync(dbFile));
+        const keys = Object.keys(currentOpenOrders);
+        const currentEpochTime = Date.now();
+        keys.forEach((key) => {
+            currentOpenOrders[key] = currentOpenOrders[key].filter(x => x.expiry > currentEpochTime);
+        })
+        fs.writeFileSync(dbFile, JSON.stringify(currentOpenOrders, null, 4));
+    }
+
 
     addOrder(addOrder: any) : boolean {
         try {
@@ -33,6 +86,21 @@ export class DatabaseFileService {
             currentOpenOrders[addOrder.walletAddress].push(addOrder);
             fs.writeFileSync(dbFile, JSON.stringify(currentOpenOrders, null, 4));
 
+            return true;
+        } catch (error) {
+            this.logger.error(String(error));
+        }
+        return false;
+    }
+
+    addFill(addFill: any) : boolean {
+        try {
+            const fs = require('fs');
+            const dbFile = __dirname + `/../db/fills.json`;
+            const currentFills = JSON.parse(fs.readFileSync(dbFile));
+            this.logger.info(JSON.stringify(currentFills));
+            currentFills.push(addFill);
+            fs.writeFileSync(dbFile, JSON.stringify(currentFills, null, 4));
             return true;
         } catch (error) {
             this.logger.error(String(error));
@@ -61,7 +129,7 @@ export class DatabaseFileService {
         return false;
 }
 
-    _initDatabase() : any {
+    _initOpenBetsDatabase() : any {
         const fs = require('fs');
         const databaseFile = __dirname + `/../db/${"open_orders.json"}`;
         try {
@@ -78,5 +146,20 @@ export class DatabaseFileService {
         }
     }
 
-
+    _initFillsDatabase() : any {
+        const fs = require('fs');
+        const databaseFile = __dirname + `/../db/${"fills.json"}`;
+        try {
+            fs.readFileSync(databaseFile);
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                this.logger.error(`Creating file for ${databaseFile}.`);
+                fs.writeFileSync(databaseFile, `[]`);
+            }
+            else {
+                this.logger.error(String(error));
+                throw new Error(error);
+            }
+        }
+    }
 }

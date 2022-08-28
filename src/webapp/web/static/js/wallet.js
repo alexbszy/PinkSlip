@@ -1,7 +1,20 @@
 walletAddress = "0x0000000000000000000000000000000000000000";
+walletBalance = "0";
+
+
+async function formatBalance() {
+    const wei = await web3.eth.getBalance(walletAddress);
+    const ethBalance =  web3.utils.fromWei(wei , 'ether');
+    walletBalance = ethBalance;
+    return Number.parseFloat(ethBalance).toFixed(2) + " RopEth";
+}
+
+function formatAddress() {
+    return walletAddress.substring(0,6) + '...' + walletAddress.substr(walletAddress.length - 5, 4)
+}
 
 async function connectWallet() {
-    connectToMetaMask().then((hasConnected) => {
+    connectToMetaMask().then(async (hasConnected) => {
         if (hasConnected) {
         const toSend = 
         {
@@ -9,10 +22,18 @@ async function connectWallet() {
             "walletAddress": walletAddress
         };
         console.log(toSend);
+
+
         socket.send(JSON.stringify(toSend));
+        
+        }
+    }).then(async () => {
+        const balance = await formatBalance();
+        $("#connect").hide();
+        if (!$("#topRightBalance").length) {
+            $("#topRight").append(`<button id="topRightBalance">${formatAddress()} ${balance}</button>`);
         }
     });
-   
 }
 
 /* To connect using MetaMask */

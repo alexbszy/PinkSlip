@@ -5,7 +5,7 @@ function createPinkSlip() {
     '<div class="pink-slip">' 
         + '<div class="pink-slip-header">' 
             + `<div class="pink-slip-header-1" onclick=switchPinkSlipContent(1)>${"BET SLIP"}</div>`
-            + `<div class="pink-slip-header-2" onclick=switchPinkSlipContent(2)>${"OPEN BETS"}</div>`
+            + `<div class="pink-slip-header-2" onclick=switchPinkSlipContent(2)>${"MY BETS"}</div>`
             + `<div class="pink-slip-header-3" onclick=switchPinkSlipContent(3)>${UP_ARROW}</div>`
         + `</div>` 
         + '<div class="pink-slip-body">' 
@@ -13,11 +13,11 @@ function createPinkSlip() {
                 + `<div class="pink-slip-body-content-text-1" onclick=connectWallet()>${"Connect Wallet To Bet"}</div>`
             + `</div>`
             + `<div class="pink-slip-body-content-2">`
-                + `<div class="pink-slip-body-content-text-2">${"No Open Bets"}</div>`
+                + `<div class="pink-slip-body-content-text-2">${"No Bets"}</div>`
             + `</div>`
         + '</div>' 
     + '</div>';
-    $('body').append(html);
+    $('#contain').append(html);
 }
 
 function switchPinkSlipContent(state) {
@@ -270,9 +270,9 @@ function setMatch(betIndex) {
 
     let i = 0;
     for (i; i < durationTimes.length; i++) {
-        if (timeLeft >= durationTimesInSeconds[i]) {
+        if (timeLeft > durationTimesInSeconds[i]) {
             $('#duration').append($('<option>', { 
-                value: i+1,
+                value: CURRENT_TIME + durationTimesInSeconds[i],
                 text : durationTimes[i]
             }))
         } else {
@@ -281,7 +281,7 @@ function setMatch(betIndex) {
     }
     if (timeLeft > 0) {
         $('#duration').append($('<option>', { 
-            value: i+1,
+            value: commenceTime,
             text : "Until Match Begins"
         }))
     } 
@@ -304,6 +304,8 @@ function placeOrder() {
 
     console.log($("#toWin").val());
     console.log($("#toWager").val());
+    console.log($("#duration option:selected").val());
+
     console.log($("#duration option:selected").text());
     console.log($("#side option:selected").text());
     console.log($("#match option:selected").text());
@@ -330,15 +332,20 @@ function placeOrder() {
     if (!parseInt($("#league").val())) {
         message = "Select Valid League";
     }
+    console.log("---");
+
+    const matchId = '_' + betData[parseInt($("#league").val())-1][parseInt($("#match option:selected").val())-1]["id"];
     // console.log(message);
     if (message === "Order Placed!") {
         const order = {
+            "status": "open",
             "walletAddress": walletAddress,
             "orderId": randomNumber(12),
             "timestamp": Date.now(),
+            "expiry": parseInt($("#duration option:selected").val()),
             "league": $("#league option:selected").text(),
             "match": $("#match option:selected").text(),
-            "matchId": 0,
+            "matchId": matchId,
             "side": $("#side option:selected").text(),
             "duration": $("#duration option:selected").text(),
             "toWager": $("#toWager").val(),
@@ -356,32 +363,36 @@ function formatOrders() {
     let htmlBuilder = `<ol id="openBets"></ol>`;
 
     // const orderId = ['alex-1234', 'alex-1235', 'alex-145'];
-    openBets.forEach((bet) => {
-        let eventMatch = bet.match.substring(
-            0,
-            bet.match.indexOf("("), 
-        ).split('_').join(' ');
-        let eventTime = bet.match.substring(
-            bet.match.indexOf("(") + 1, 
-            bet.match.lastIndexOf(")")
-        );
-        htmlBuilder += 
-        `<li class="openBetRow">
-            <div class="openBetRow2">
-                <div><b>OrderId: &nbsp </b>${bet.orderId} </div>
-                <div class="placeholder"></div>
-                <button id="cancel" onclick=removeOrder(${bet.orderId})>Cancel Bet</button>
-            </div>
-            <div class="openBetRow2"><b>Event: &nbsp </b>${eventMatch}</div>
-            <div class="openBetRow2"><b>Time: &nbsp </b>${eventTime}</div>
-            <div class="openBetRow2"><b>Side: &nbsp </b>${bet.side}</div>
-            <div class="openBetRow2"><b>Wager: &nbsp </b>${bet.toWager}</div>
-            <div class="openBetRow2"><b>To Win: &nbsp </b>${bet.toWin}</div>
-        </li>`;
+    userBetsNumber = 0;
+    allBets.forEach((bet) => {
+        if (bet.walletAddress === walletAddress) {
+            userBetsNumber +=1
+            let eventMatch = bet.match.substring(
+                0,
+                bet.match.indexOf("("), 
+            ).split('_').join(' ');
+            let eventTime = bet.match.substring(
+                bet.match.indexOf("(") + 1, 
+                bet.match.lastIndexOf(")")
+            );
+            htmlBuilder += 
+            `<li class="openBetRow">
+                <div class="openBetRow2">
+                    <div><b>OrderId: &nbsp </b>${bet.orderId} </div>
+                    <div class="placeholder"></div>
+                    <button id="cancel" onclick=removeOrder(${bet.orderId})>Cancel Bet</button>
+                </div>
+                <div class="openBetRow2"><b>Event: &nbsp </b>${eventMatch}</div>
+                <div class="openBetRow2"><b>Time: &nbsp </b>${eventTime}</div>
+                <div class="openBetRow2"><b>Side: &nbsp </b>${bet.side}</div>
+                <div class="openBetRow2"><b>Wager: &nbsp </b>${bet.toWager}</div>
+                <div class="openBetRow2"><b>To Win: &nbsp </b>${bet.toWin}</div>
+            </li>`;
+        }
     })
     htmlBuilder += `</ol>`;
 
-    if (openBets.length) {
+    if (userBetsNumber) {
         $(".pink-slip-body-content-text-2")[0].innerHTML = "Open Bets";
     } else {
         $(".pink-slip-body-content-text-2")[0].innerHTML = "No Open Bets";
@@ -392,8 +403,6 @@ function formatOrders() {
 function removeOrder(orderId) {
     const data = {"walletAddress": walletAddress, "orderId": orderId};
     socket.send(JSON.stringify({"type":"removeOrder","data":data}));
-
-
 }
 
 
@@ -409,7 +418,8 @@ function randomNumber(length) {
 
 
   function addOrderSuccess(order) {
-    openBets.push(order); 
+    console.log(order);
+    allBets.push(order); 
     $('#league').find('option').remove().end().append(optionsHtml());
     $('#match').find('option').remove().end().append('<option value=0>---</option>').val(0);
     $('#side').find('option').remove().end().append('<option value=0>---</option>').val(0);
@@ -417,17 +427,20 @@ function randomNumber(length) {
     $('#toWager').val(0);
     $('#toWin').val(0);
     $("#con-2")[0].innerHTML = formatOrders();//openBets[0].user;
+    displayGames();
     alert("Order Placed!");
   }
 
   function removeOrderSuccess(orderId) {
-    openBets = openBets.filter(x => x.orderId != String(orderId));
+    allBets = allBets.filter(x => x.orderId != String(orderId));
+
     $("#con-2")[0].innerHTML = formatOrders();
+    displayGames();
     alert(`removed order id ${orderId}`);
   }
 
   function setOpenOrders(openOrders) {
-    openBets = openOrders;
     switchPinkSlipContent(4);
     $("#con-2")[0].innerHTML = formatOrders();
+    displayGames();
   }

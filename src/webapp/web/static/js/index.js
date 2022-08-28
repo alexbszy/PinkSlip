@@ -23,12 +23,13 @@ function requestCollection() {
 
 $(() => { 
     socket = new WebSocket("wss://pinkslipbets.com:8443/");
+    // socket = new WebSocket("ws://127.0.0.1:8443/");
 
     // setUrlParam();
     setIndexFromParam();
     setUrlParam();
-    $('body').append('<div class="topRow"><h1 id="mainTitle">PinkSlip.io</h1><button id="connect" onclick="connectWallet()">Connect Wallet</button></div>');
-    $('body').append('<div class="headers"></div>');
+    $('#contain').append('<div class="topRow"><h1 id="mainTitle">PinkSlipBets</h1><div id="topRight"><button id="connect" onclick="connectWallet()">Connect Wallet</button></div></div>');
+    $('#contain').append('<div class="headers"></div>');
     setUpTabs();
     createPinkSlip();
     socket.onmessage = function(event){
@@ -49,7 +50,22 @@ function handleMessage(event) {
     if (event.type === "addOrder") {
         addOrderSuccess(event.data);
     } 
+    if (event.type === "fill") {
+        displayGames();
+    } 
     if (event.type === "removeOrder") {
         removeOrderSuccess(event.data.orderId);
     } 
+
+    if (event.type === "allOpenOrders") {
+        allBets = event.data;
+        allBets.forEach((bet) => {
+            console.log(bet)
+            const currentNumber = $(`#${bet.matchId} .five`).text().substring(13);;
+            console.log(`asd =${currentNumber}`)
+            $(`#${bet.matchId} .five`).text(`No. Entries: ${(parseInt(currentNumber)+1).toString()}`)
+        })
+    }
+
 }
+

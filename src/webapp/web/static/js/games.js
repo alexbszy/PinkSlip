@@ -1,10 +1,18 @@
 let betData;
 let CURRENT_TIME = new Date().valueOf();
+let tables = [];
+
+
+window.onresize = function(event) {
+    tables.forEach((table) => {
+        renderTableWidth(table.id, table.homeTable, table.awayTable);
+    })
+};
 
 function displayGames() {
     clearOutAllLists();
     clearOutHeaders();
-
+    
     const currentData = betData[currentIndex];
     console.log(currentData)
 
@@ -66,7 +74,19 @@ function displayGames() {
         appendEmptyToList("completed_list", "No recently completed games", "");
     }
 }
+allBets.forEach((bet) => {
+    console.log(bet)
+    const currentNumber = $(`#${bet.matchId} .five`).text().substring(13);;
+    $(`#${bet.matchId} .five`).text(`No. Entries: ${(0).toString()}`)
+})
+
+allBets.forEach((bet) => {
+    console.log(bet)
+    const currentNumber = $(`#${bet.matchId} .five`).text().substring(13);;
+    $(`#${bet.matchId} .five`).text(`No. Entries: ${(parseInt(currentNumber)+1).toString()}`)
+})
 }
+
 
 
 function clearOutAllLists() {
@@ -90,15 +110,15 @@ function clearOutHeaders() {
 
 function createList(listName, header) {
     if (!$(`ol.${listName}`).length) {
-        $('body').append(`<h2 class="header">${header}</h2>`);
-        $('body').append(`<ol class=${listName}></ol>`);
+        $('#contain').append(`<h2 class="header">${header}</h2>`);
+        $('#contain').append(`<ol class=${listName}></ol>`);
     }
 }
 
 function createEmptyList(listName, header) {
     if (!$(`ol.${listName}`).length) {
-        $('body').append(`<h2 class="header">${header}</h2>`);
-        $('body').append(`<ol class=${listName}></ol>`);
+        $('#contain').append(`<h2 class="header">${header}</h2>`);
+        $('#contain').append(`<ol class=${listName}></ol>`);
         d = document.createElement('li');
         $(d).addClass("tile_empty");
         $(d).append(`<div class=one><div class=block>${"No games in the near future"}</div><div class=block>${"Please check back later"}</div></div>`)
@@ -122,7 +142,7 @@ function appendToList(dataDto, listName) {
     $(d).append(`<div class=one><div class=block>${dataDto["away_team_name"]}</div><div class=block>${dataDto["home_team_name"]}</div></div>`)
     $(d).append(`<div class=three><div>${dataDto["away_team_score"]}</div><div>${dataDto["home_team_score"]}</div></div>`)
     $(d).append(`<div class=two>${dataDto["status"]}</div>`);
-    $(d).append(`<div class=three>No. Entries:<br>${0}</div>`);
+    $(d).append(`<div class=five>No. Entries: ${0}</div>`);
     $(d).append(`<div class=four>${UP_ARROW};</div>`)
     $(`.${listName}`).append(d);
 }
@@ -131,26 +151,228 @@ function dropDownOnId(id) {
     console.log(id.id);
     if ($(`#${id.id}`)[0].lastChild.className === "openBetBar") {
         if ($(`#${id.id}`)[0].lastChild.getAttribute("mode") === "up") {
-            $(`#${id.id}`).find(".openBetBar").slideDown("fast");
-            $(`#${id.id}`).find(".openBetBar")[0].setAttribute("mode", "down");
-            $(`#${id.id}`).find(".four")[0].innerHTML=DOWN_ARROW
-            $(`#${id.id}`).find(".four").css('color', 'grey');
+            $(`#${id.id} .openBetBar`).slideDown("fast", () => {
+                $(`#${id.id} .openBetBar`)[0].setAttribute("mode", "down");
+                $(`#${id.id} .four`)[0].innerHTML=DOWN_ARROW
+                $(`#${id.id} .four`).css('color', 'grey');
+            });
         } else {
-            $(`#${id.id}`).find(".openBetBar").slideUp("fast");
-            $(`#${id.id}`).find(".openBetBar")[0].setAttribute("mode", "up");
-            $(`#${id.id}`).find(".four")[0].innerHTML=UP_ARROW
-            $(`#${id.id}`).find(".four").css('color', 'white');
+            $(`#${id.id}`).find(".openBetBar").slideUp("fast", () => {
+                $(`#${id.id} .openBetBar`)[0].setAttribute("mode", "up");
+                $(`#${id.id} .four`)[0].innerHTML=UP_ARROW
+                $(`#${id.id} .four`).css('color', 'white');
+            });
         }
     } else {
-        $(`#${id.id}`).append('<div style="display: none;" class="openBetBar">SOMETHING</div>')
-        $(`#${id.id}`).find(".openBetBar").slideDown("fast");
-        $(`#${id.id}`).find(".openBetBar")[0].setAttribute("mode", "down");
-        $(`#${id.id}`).find(".four")[0].innerHTML=DOWN_ARROW
-        $(`#${id.id}`).find(".four").css('color', 'grey');
+
+        $(`#${id.id}`).append(`<div style="display: none;" class="openBetBar">${getOrderHTML(id.id)}</div>`)
+        const homeTable = createTable(id.id, true);
+        const awayTable = createTable(id.id, false);
+        tables.push({"id": id.id, "homeTable": homeTable, "awayTable": awayTable});
+        homeTable?.render();
+
+        $(`#${id.id} .openBetBar`).slideDown("fast", () => {
+            $(`#${id.id} .openBetBar`)[0].setAttribute("mode", "down");
+            $(`#${id.id} .four`)[0].innerHTML=DOWN_ARROW
+            $(`#${id.id} .four`).css('color', 'grey');
+
+            renderTableWidth(id.id, homeTable, awayTable);
+
+            let height = $(`#homeTable${id.id} .htCore`).height();
+            const awayTableHeight = $(`#awayTable${id.id} .htCore`).height();
+            if (awayTableHeight > height) {
+                height = awayTableHeight;
+            }
+            height += $(`#${id.id} #homeTitle`).height();
+            height += $(`#${id.id} #homeTitle`).height();
+            $(`#${id.id} .openBetBar`).height(height);
+
+        });
+
     }
 }
 
-function getOrderHTML() {
-    openBets.forEach()
-    return 
+function renderTableWidth(id, homeTable, awayTable) {
+    const wid = $(`#${id} #home`).width();
+    const colWidths = [wid*.35, wid*.25, wid*.1, wid*.1, wid*.1, wid*.1];
+    homeTable?.updateSettings({
+        colWidths: colWidths
+    });
+    awayTable?.updateSettings({
+        colWidths: colWidths
+    });
+    awayTable?.render();
+    homeTable?.render();
+
 }
+
+function getOrderHTML(id) {
+    
+    // allOpenBets.forEach((bet) => {
+    //     if (bet.matchId === id) { 
+
+    //     }
+    // }
+
+      // <div>
+        //     <div id="away"></div>
+        //     <div id="awayTitle">Away</div>
+        // </div>
+
+
+        // <div id="awayHolder">
+        // <div id="awayTable"></div>
+        
+
+    const homeTeam = $(`#${id} .one .block`)[1].innerHTML
+    const awayTeam = $(`#${id} .one .block`)[0].innerHTML
+    let html = `
+    <div id="matchTable">
+        <div id="titleHolder">
+            <div id="away"></div>
+            <div id="awayTitle"><b>${awayTeam} To Win</b></div>
+        </div>
+        <div>
+            <div id="home"></div>
+            <div id="homeTitle"><b>${homeTeam} To Win</b></div>
+        </div>
+        <div id="awayHolder">
+            <div id="awayTable${id}"></div>
+        </div>
+        <div id="homeHolder">
+            <div id="homeTable${id}"></div>
+        </div>
+    </div>`;
+    // allOpenBets.forEach((bet) => {
+    //     if (bet.matchId === id) {
+    //         const duration = bet.duration;
+    //         const toWager = Number.parseFloat(bet.toWager);
+    //         const toWin = Number.parseFloat(bet.toWin);
+    //         if (bet.walletAddress === walletAddress) {
+    //             html += `<div class="users">${duration} - ${toWager} - ${toWin}</div>`
+    //         } else {
+    //             html += `<div class="others">${duration} - ${toWager} - ${toWin}</div>`
+    //         }
+    //         console.log(html);
+    //     }
+    // })
+    return html;
+}
+
+function convertRemToPixels(rem) {    
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
+// function buttonRender(instance, td, row, col, prop, value, cellProperties) {
+//     console.log(td);
+//     return `<button>ss</button>`
+// }
+function askTransaction(betWalletAddress, toWin, toWager, orderId, user, homeTeam, awayTeam, isHome) {
+    console.log(user);
+    if (user === "User Bet") {
+        alert("You can not bet against yourself");
+        return;
+    }
+    if (walletAddress === "0x0000000000000000000000000000000000000000") {
+        alert("Connect a wallet to place a bet");
+        return;
+    }
+
+    let makerTeamToWin = homeTeam;
+    let takerTeamToWin = awayTeam;
+
+    if (isHome) {
+        makerTeamToWin = awayTeam;
+        takerTeamToWin = homeTeam;
+    }
+
+    const fillDto = 
+    {
+        "maker": betWalletAddress,
+        "taker": walletAddress,
+        "makerWager": toWin - toWager,
+        "takerWager": toWager,
+        "payout": toWin,
+        "timestamp": new Date().valueOf(),
+        "makerTeamToWin": makerTeamToWin,
+        "takerTeamToWin": takerTeamToWin,
+        "makerBetId": orderId
+    }
+    console.log(JSON.stringify({"type":"fill","data":fillDto}))
+    socket.send(JSON.stringify({"type":"fill","data":fillDto}));
+}
+
+function createTable(id, isHomeTable) {
+    const homeTeam = $(`#${id} .one .block`)[1].innerHTML;
+    const awayTeam = $(`#${id} .one .block`)[0].innerHTML;
+
+    console.log(homeTeam, awayTeam)
+    const tableData = [];
+      
+    allBets.forEach((bet) => {
+        if (bet.matchId === id) {
+            if (isHomeTable && bet.side === awayTeam || !isHomeTable && bet.side === homeTeam) {
+                console.log(bet.side);
+                const expiry = bet.expiry;
+                const toWager = Number.parseFloat(bet.toWager);
+                const toWin = Number.parseFloat(bet.toWin);
+                let user = "User Bet"
+                if (bet.walletAddress !== walletAddress) {
+                    user = "Anonymous " + getRandomAnimal();
+                } 
+                tableData.push([user, expiry, toWager, toWin, toWager/toWin, `<button onclick="askTransaction('${bet.walletAddress}', '${bet.toWin}', '${bet.toWager}', '${bet.orderId}', '${user}', '${homeTeam}', '${awayTeam}', '${isHomeTable}')" class='betButton'>Bet</button>`])
+            }
+        }
+    })
+
+    // if (!tableData.length) {
+    //     return undefined;
+    // }
+
+    let elementId = 'awayTable' + id;
+    if (isHomeTable) {
+        elementId = 'homeTable' + id;
+    }
+    const wid = ($(`#${id}`).width() - convertRemToPixels(2)) / 2;
+    console.log(`width ${wid}`)
+    const hot = new Handsontable(document.getElementById(elementId), {
+        rowHeaders: false,
+        colHeaders: ['Opponent', 'Expires At', 'Wager', 'Payout', 'Odds', ''],
+        columns: [
+            {type: 'text', editor: false, readOnly: true}, 
+            {type: 'time', timeFormat: 'MM/DD/YYYY hh:mm A', correctFormat: true,editor: false, readOnly: true},
+            {type: 'numeric', editor: false, readOnly: true},
+            {type: 'numeric', editor: false, readOnly: true},
+            {type: 'numeric',  numericFormat: {pattern: '%0,0.00'}, editor: false, readOnly: true },
+            {type: 'text', renderer: "html", editor: false, readOnly: true}, //renderer: buttonRender},
+        ],
+        data: tableData,
+        dropdownMenu: true,
+        // filters: true,
+        renderAllRows: true,
+
+        sorting: true,
+        // manualColumnResize: true,
+        // width: '100%',
+        selectionMode: 'single', // 'single', 'range' or 'multiple',
+        colWidths: [wid*.35, wid*.25, wid*.1, wid*.1, wid*.1, wid*.1],
+        // colWidths: 25,
+        // width: '100%',
+        // stretchH: 'all', // 'none' is default
+        licenseKey: 'non-commercial-and-evaluation',
+        columnSorting: {
+            initialConfig: {
+                column: 4,
+                sortOrder: 'asc'
+            }
+        },
+        onSelection: function (r, c, r2, c2) {
+            $(`#${elementId}`).handsontable('deselectCell');
+        }, 
+
+      });
+      hot.validateCells();
+
+      return hot;
+}
+
