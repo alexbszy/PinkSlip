@@ -29,12 +29,12 @@
 //   const tx = await pinkContract.addFill(
 //       data.fillId,
 //       data.makerAddress,
-//       data.takerAddress, 
+//       data.takerAddress,
 //       data.makerWager,
-//       data.takerWager, 
-//       data.payout, 
-//       data.timestamp, 
-//       data.makerTeamToWin, 
+//       data.takerWager,
+//       data.payout,
+//       data.timestamp,
+//       data.makerTeamToWin,
 //       data.takerTeamToWin,
 //       data.matchId,
 //       data.winner
