@@ -13,11 +13,11 @@ Webserver -> nginx<br>
 Hosted -> aws<br>
 
 # Sports Api Used
-https://the-odds-api.com/
+https://the-odds-api.com/ <br>
 This api aggregates sport scores and odds. 500 requests a month are included in free tier.
 
 # Chainlink Keepers
-https://docs.chain.link/docs/chainlink-keepers/introduction/
+https://docs.chain.link/docs/chainlink-keepers/introduction/ <br>
 These keepers are great. They allow me to pay out bet winners without having to do so manually.
 
 # Future Expansions
