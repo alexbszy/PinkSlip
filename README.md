@@ -13,4 +13,8 @@ Database -> Simple no-sql in the form of json files
 Webserver -> nginx
 Hosted -> aws
 
-# Running Locally
+# Demo
+https://youtu.be/B7DVf8jOFFo
+
+# Deployed Site
+https://www.pinkslipbets.com/
