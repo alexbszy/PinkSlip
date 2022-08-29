@@ -33,7 +33,8 @@ https://www.pinkslipbets.com/
 
 # Local Set Up
 1. git clone project
-2. npm install (yarn)
-3. yarn hardhat compile
-4. npm start
-5. connect to localhost:8443 through browser
+2. git checkout local
+3. npm install (yarn)
+4. yarn hardhat compile
+5. npm start
+6. connect to localhost:8443 through browser
