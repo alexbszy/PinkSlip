@@ -2,6 +2,22 @@ html {
     overflow-y:scroll;
 }
 
+.loader {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #ff69b4; 
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 #placeholder {
     height: 3rem;
 }
@@ -87,14 +103,14 @@ html {
 }
 .handsontable {
     z-index: 2;
-    background-color: #232A33;;
+    background-color: #232A33;
     /* border: .125rem solid #1A212A; */
     font-size: 80% !important; 
 
   }
 
   .handsontable td{
-    background-color: #232A33;;
+    background-color: #232A33;
     /* border: .125rem solid #1A212A; */
     color: white;
 
@@ -161,9 +177,9 @@ tr {
     /* overflow-y: hidden; */
 
 }
-.users {
+/* .users {
     background-color: pink;
-}
+} */
 .others {
     border: .125rem solid #1A212A;
 

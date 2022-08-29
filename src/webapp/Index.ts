@@ -8,43 +8,25 @@ import {DatabaseFileService} from "./DatabaseFileService"
 import {CacheFileService} from "./CacheFileService"
 import {OddsApiService} from "./OddsApiService"
 
-function sendCurrentState(ws: any, cacheFileService: any, databaseFileService: any) {
+
+function sendScores(ws: any, cacheFileService: any) {
   const toSendScores = {
     "type": "scores",
     "data": cacheFileService.getAllScores()
   };
-
   ws.send(JSON.stringify(toSendScores));
-
-  const toSendAllOrders = {
-    "type": "allOpenOrders",
-    "data": databaseFileService.getAllOpenBets()
-  };
-
-  ws.send(JSON.stringify(toSendAllOrders));
-
-
-  const toSendAllFills = {
-    "type": "allFills",
-    "data": databaseFileService.getAllFills()
-  };
-  ws.send(JSON.stringify(toSendAllFills));
 }
-function sendUpdateState(ws: any, cacheFileService: any, databaseFileService: any) {
+
+
+function sendCurrentState(ws: any, databaseFileService: any) {
   const toSendAllOrders = {
-    "type": "allOpenOrders",
-    "data": databaseFileService.getAllOpenBets()
+    "type": "allOrders",
+    "data": databaseFileService.getAllBets()
   };
-
   ws.send(JSON.stringify(toSendAllOrders));
-
-
-  const toSendAllFills = {
-    "type": "allFills",
-    "data": databaseFileService.getAllFills()
-  };
-  ws.send(JSON.stringify(toSendAllFills));
 }
+
+
 async function bootstrap() {
   const port = process.env.PORT || 8443;
   const logFormat = winston.format.printf(({ level, message, timestamp }) => {
@@ -77,63 +59,67 @@ const serverOptions = {
 
   app.ws('/', (ws:any, req:any) => {
     databaseFileService.clearExpired()
+    sendScores(ws, cacheFileService);
+    sendCurrentState(ws, databaseFileService);
 
-    sendCurrentState(ws, cacheFileService, databaseFileService);
     const timeSinceLastUpdateInMinutes: number = (Date.now() - cacheFileService.getLastUpdateTime()) / 6e4;
     logger.info(`Time since last update in minutes: ${timeSinceLastUpdateInMinutes}`)
+
     if (timeSinceLastUpdateInMinutes >= 60) {
         logger.info(`Requesting updated scores from oddsApiService`);
         oddsApiService.getAllScores(3).then((values) => {
         cacheFileService.cacheAllScores(values);
-        ws.send(JSON.stringify(cacheFileService.getAllScores()));
+        sendScores(ws, cacheFileService);
       });
     }
+
     logger.info("Connected")
-
-
 
     ws.on('message', (msg:any) => {
       const msgJson = JSON.parse(msg);
       logger.info(`on message ${msg}`);
+
       if (msgJson.type === "walletConnected") {
         logger.info("wallet Connected - adding user to db");
         databaseFileService.addWallet(msgJson.walletAddress);
-        const toSendOpenOrdersForWallet = {
-          "type": "walletOpenOrders",
-          "data": databaseFileService.getOpenBetByWallet(msgJson.walletAddress)
-        };
-        ws.send(JSON.stringify(toSendOpenOrdersForWallet));
-      } else if (msgJson.type === "removeOrder") {
+        ws.send(JSON.stringify({"type": "walletConnected"}));
+      }
+      else if (msgJson.type === "removeOrder") {
         databaseFileService.removeOrder(msgJson.data);
         const toSendRemoveOrder = {
           "type": "removeOrder",
           "data": msgJson.data
         };
+        sendCurrentState(ws, databaseFileService);
         ws.send(JSON.stringify(toSendRemoveOrder));
-      } else if (msgJson.type === "addOrder") {
+      }
+      else if (msgJson.type === "addOrder") {
         databaseFileService.addOrder(msgJson.data);
         const toSendAddOrder = {
           "type": "addOrder",
           "data": msgJson.data
         };
+        sendCurrentState(ws, databaseFileService);
         ws.send(JSON.stringify(toSendAddOrder));
-      } else if (msgJson.type === "fill") {
+      }
+      else if (msgJson.type === "fill") {
         databaseFileService.addFill(msgJson.data);
         logger.info(JSON.stringify(msgJson.data));
 
-        databaseFileService.removeOrder({"walletAddress": msgJson.data.maker, "orderId": msgJson.data.makerBetId});
-        sendUpdateState(ws, cacheFileService, databaseFileService);
+        databaseFileService.updateOrder({"walletAddress": msgJson.data.maker, "orderId": msgJson.data.makerBetId, "status": "pending"});
+
         const toSendAddFill = {
           "type": "fill",
           "data": msgJson.data
         };
+        sendCurrentState(ws, databaseFileService);
         ws.send(JSON.stringify(toSendAddFill));
       }
     });
   });
 
   server.listen(port, () => {
-  //app.listen(port, () => {
+  // app.listen(port, () => {
     logger.info( `Server started at https://localhost:${port}` );
   });
 }

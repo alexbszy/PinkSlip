@@ -82,11 +82,12 @@
     display: none;
 }
 .pink-slip-body-content-text-1 {
+
     text-align: center;
     color: blue;
     margin: 0rem 0rem 0rem 0rem; 
+    margin-bottom: 1rem;
 
-    
 }
 .pink-slip-body-content-text-1:hover {
     color: white;
@@ -135,7 +136,7 @@ button:hover{
 }
 
 #con-2 {
-    height: 21rem;
+    height: 20.95rem;
     overflow-y: scroll;
 }
 
@@ -197,4 +198,17 @@ button:hover{
 
 #cancel:hover {
     color: white;
+}
+
+.pink-slip-body-content-text-2 {
+    margin-bottom: 1rem;
+    /* height: 1rem; */
+}
+
+#betStatus {
+    /* height: 1rem; */
+}
+
+#noBets {
+    margin-top: 2rem;
 }

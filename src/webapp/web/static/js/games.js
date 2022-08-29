@@ -75,15 +75,13 @@ function displayGames() {
     }
 }
 allBets.forEach((bet) => {
-    console.log(bet)
-    const currentNumber = $(`#${bet.matchId} .five`).text().substring(13);;
     $(`#${bet.matchId} .five`).text(`No. Entries: ${(0).toString()}`)
 })
 
 allBets.forEach((bet) => {
-    console.log(bet)
-    const currentNumber = $(`#${bet.matchId} .five`).text().substring(13);;
-    $(`#${bet.matchId} .five`).text(`No. Entries: ${(parseInt(currentNumber)+1).toString()}`)
+    if(bet.status === "open") {
+        $(`#${bet.matchId} .five`).text(`No. Entries: ${(parseInt($(`#${bet.matchId} .five`).text().substring(13))+1).toString()}`)
+    }
 })
 }
 
@@ -267,14 +265,14 @@ function convertRemToPixels(rem) {
 //     console.log(td);
 //     return `<button>ss</button>`
 // }
-function askTransaction(betWalletAddress, toWin, toWager, orderId, user, homeTeam, awayTeam, isHome) {
+async function askTransaction(betWalletAddress, toWin, toWager, orderId, match, matchId, league, user, homeTeam, awayTeam, isHome) {
     console.log(user);
     if (user === "User Bet") {
-        alert("You can not bet against yourself");
+        Modal.alert("You can not bet against yourself.");
         return;
     }
     if (walletAddress === "0x0000000000000000000000000000000000000000") {
-        alert("Connect a wallet to place a bet");
+        Modal.alert("Connect a wallet to place a bet.");
         return;
     }
 
@@ -285,20 +283,42 @@ function askTransaction(betWalletAddress, toWin, toWager, orderId, user, homeTea
         makerTeamToWin = awayTeam;
         takerTeamToWin = homeTeam;
     }
-
+    const timestamp = new Date().valueOf();
     const fillDto = 
     {
+        "fillId": randomNumber(12),
         "maker": betWalletAddress,
         "taker": walletAddress,
-        "makerWager": toWin - toWager,
-        "takerWager": toWager,
+        "makerWager": toWager,
+        "takerWager": (toWin - toWager).toString(),
         "payout": toWin,
-        "timestamp": new Date().valueOf(),
+        "timestamp": timestamp,
         "makerTeamToWin": makerTeamToWin,
         "takerTeamToWin": takerTeamToWin,
         "makerBetId": orderId
     }
-    console.log(JSON.stringify({"type":"fill","data":fillDto}))
+
+    const order = {
+        "status": "pending",
+        "walletAddress": walletAddress,
+        "orderId": randomNumber(12),
+        "timestamp": timestamp,
+        // expiry
+        "league": league,
+        "match": match,
+        "matchId": matchId,
+        "side": takerTeamToWin,
+        // duration
+        "toWager": (toWin - toWager).toString(),
+        "toWin": toWin,
+    }
+
+    await sendTransaction(toWin - toWager);
+
+    console.log(JSON.stringify({"type":"addOrder","data":order}))
+    socket.send(JSON.stringify({"type":"addOrder","data":order}));
+
+    console.log(JSON.stringify({"type":"fill","data":fillDto}));
     socket.send(JSON.stringify({"type":"fill","data":fillDto}));
 }
 
@@ -310,7 +330,7 @@ function createTable(id, isHomeTable) {
     const tableData = [];
       
     allBets.forEach((bet) => {
-        if (bet.matchId === id) {
+        if (bet.matchId === id && bet.status == "open") {
             if (isHomeTable && bet.side === awayTeam || !isHomeTable && bet.side === homeTeam) {
                 console.log(bet.side);
                 const expiry = bet.expiry;
@@ -320,7 +340,9 @@ function createTable(id, isHomeTable) {
                 if (bet.walletAddress !== walletAddress) {
                     user = "Anonymous " + getRandomAnimal();
                 } 
-                tableData.push([user, expiry, toWager, toWin, toWager/toWin, `<button onclick="askTransaction('${bet.walletAddress}', '${bet.toWin}', '${bet.toWager}', '${bet.orderId}', '${user}', '${homeTeam}', '${awayTeam}', '${isHomeTable}')" class='betButton'>Bet</button>`])
+                tableData.push([user, expiry, toWin-toWager, toWin, (toWin-toWager)/toWin, 
+                `<button onclick="askTransaction('${bet.walletAddress}', '${bet.toWin}', '${bet.toWager}', 
+                '${bet.orderId}', '${bet.match}', '${bet.matchId}', '${bet.league}', '${user}', '${homeTeam}', '${awayTeam}', '${isHomeTable}')" class='betButton'>Bet</button>`])
             }
         }
     })

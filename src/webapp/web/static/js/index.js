@@ -44,27 +44,28 @@ function handleMessage(event) {
         betData = event.data;
         displayGames();
     }
-    if (event.type === "walletOpenOrders") {
-        setOpenOrders(event.data);
+    if (event.type === "walletConnected") {
+        walletConnected();
     } 
     if (event.type === "addOrder") {
         addOrderSuccess(event.data);
     } 
     if (event.type === "fill") {
-        displayGames();
+        Modal.alert(`A bet has been made. Payout will be awarded once a winner is determined. [${event.data.fillId}]`)
     } 
     if (event.type === "removeOrder") {
         removeOrderSuccess(event.data.orderId);
     } 
 
-    if (event.type === "allOpenOrders") {
+    if (event.type === "allOrders") {
         allBets = event.data;
         allBets.forEach((bet) => {
             console.log(bet)
-            const currentNumber = $(`#${bet.matchId} .five`).text().substring(13);;
-            console.log(`asd =${currentNumber}`)
-            $(`#${bet.matchId} .five`).text(`No. Entries: ${(parseInt(currentNumber)+1).toString()}`)
+            // const currentNumber = $(`#${bet.matchId} .five`).text().substring(13);;
+            // console.log(`asd =${currentNumber}`)
+            // $(`#${bet.matchId} .five`).text(`No. Entries: ${(parseInt(currentNumber)+1).toString()}`)
         })
+        displayGames();
     }
 
 }
